@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fire of Civilization — Game</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body style="background:url('images/1.png') center/cover fixed no-repeat;">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="glass sticky-top">
+    <nav class="navbar navbar-expand-lg container">
+      <a class="navbar-brand fw-bold text-white" href="index.html">🔥 Fire of Civilization</a>
+      <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div id="nav" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a id="authLink" class="nav-link" href="login.html">Log In</a></li>
+          <li class="nav-item ms-lg-3">
+            <button id="themeToggle" class="btn btn-outline-light btn-sm">🌓 Theme</button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" class="container py-4">
+    <div class="row g-4">
+      <!-- Game -->
+      <section class="col-lg-8">
+        <div class="glass p-4 text-center">
+          <h1 class="display-6 text-accent">🔥 Fire of Civilization</h1>
+          <p class="mb-1 fw-semibold text-accent">Era: <span class="era">Prehistoric</span></p>
+          <p class="mb-3">🔥 Flame Points: <span id="flamePoints">0</span></p>
+
+          <!-- fixed-size circle; inner fire scales smoothly -->
+          <button id="fireButton" class="fire-button fire-era-1" aria-label="Keep the fire alive">
+            <div id="fireInner" class="fire-inner" role="img" aria-label="Animated fire"></div>
+          </button>
+
+          <div class="flame-bar mx-auto"><div id="flameLevel"></div></div>
+          <p id="flameText" class="mb-2">Flame: 100%</p>
+
+          <div class="era-progress mx-auto"><div id="eraProgress"></div></div>
+          <p id="eraGoalText" class="mb-2">Next Era Progress: 0%</p>
+
+          <button id="nextEraBtn" class="btn btn-outline-warning rounded-3 next-era-btn mt-1" type="button">Advance to Next Era</button>
+
+          <p class="message mt-2" id="message" aria-live="polite"></p>
+          <p class="clicks-total mt-2">🖱️ Total Clicks: <span id="clicksCount">0</span></p>
+        </div>
+      </section>
+
+      <!-- Shop -->
+      <aside class="col-lg-4">
+        <div class="glass p-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h2 class="h4 m-0">Upgrades</h2>
+            <small id="shopTheme" class="text-muted"></small>
+          </div>
+
+
+          <div id="shopList" class="shop-list mt-3" role="list"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="container py-4 text-center text-white-50">
+    © 2025 Fire of Civilization · <a class="text-white" href="about.html">About</a>
+  </footer>
+
+  <!-- sounds -->
+  <audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2021/09/01/audio_17e88a6de9.mp3?filename=fire-crackle-1.mp3"></audio>
+  <audio id="upgradeSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5296f76445.mp3?filename=success-1.mp3"></audio>
+  <audio id="newEraSound" src="https://cdn.pixabay.com/download/audio/2023/04/10/audio_4d1e038efb.mp3?filename=magic-transition-1.mp3"></audio>
+  <!-- Welcome / Lore Popup -->
+<div id="welcomeModal" class="welcome-modal glass text-center p-5">
+  <h2 class="fw-bold text-accent mb-3">🔥 Welcome, Firekeeper</h2>
+  <p class="mb-3">
+    You awaken at the dawn of humankind — a spark in the darkness.  
+    Your task is simple yet eternal: keep the fire alive.  
+    Each flame you kindle fuels civilization’s rise — from stone to stars.
+  </p>
+  <p class="mb-4">
+    Tap the fire to gather energy.  
+    Use it to unlock new eras, inventions, and the stories of humanity itself.  
+    When the flame fades, so does progress. Keep it burning, Firekeeper.
+  </p>
+  <button id="closeWelcome" class="btn btn-warning px-4">Begin the Journey</button>
+</div>
+
+<!-- Overlay behind popup -->
+<div id="overlay" class="overlay"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/script.js"></script>
+  
+</body>
+</html>

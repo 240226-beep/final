@@ -1,0 +1,551 @@
+/* =====================================================
+   Fire of Civilization — Full CSS
+   Ultra-Clear Soft Glass + Responsive Game UI
+===================================================== */
+
+/* ---------- Root Theme Variables ---------- */
+:root {
+  --accent: #ffb347;
+  --accent2: #ffaa00;
+  --text-dark: #0b1020;
+  --text-light: #ffffff;
+}
+
+/* ---------- Layout Fix (Header → Main → Footer) ---------- */
+html, body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+header, main, footer {
+  display: block;
+  width: 100%;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+}
+
+/* =====================================================
+   Glass & Theme Modes
+===================================================== */
+.glass {
+  border-radius: 20px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.4s ease;
+}
+
+html[data-theme="light"] body .glass {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dark);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+html[data-theme="dark"] body .glass {
+  background: rgba(10, 10, 10, 0.15);
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* ---------- Transparent Navbar ---------- */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .glass-nav {
+  background: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ---------- Text & Links ---------- */
+.glass a {
+  color: #fff;
+  text-decoration: underline;
+}
+html[data-theme="light"] .glass a {
+  color: #1f2937;
+}
+.text-accent {
+  color: var(--accent);
+}
+
+/* ---------- Navbar ---------- */
+.nav-link {
+  color: #fff;
+  opacity: 0.9;
+  transition: 0.3s;
+}
+.nav-link.active,
+.nav-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+.navbar-toggler {
+  filter: invert(1);
+}
+
+/* ---------- Accessibility ---------- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  background: #000;
+  color: #fff;
+  padding: 6px 10px;
+}
+
+/* =====================================================
+   Game Interface
+===================================================== */
+.fire-button {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease;
+  overflow: hidden;
+  margin: 8px 0 14px;
+}
+.fire-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 160px;
+  height: 160px;
+  background: url("../images/fire.gif") center/cover no-repeat;
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.4s ease, opacity 0.4s ease, filter 1s ease;
+}
+.fire-button:active .fire-inner {
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.fire-era-1 { box-shadow: 0 0 40px 10px orange; }
+.fire-era-2 { box-shadow: 0 0 40px 10px gold; }
+.fire-era-3 { box-shadow: 0 0 40px 10px white; }
+.fire-era-4 { box-shadow: 0 0 40px 10px #00b7ff; }
+.fire-era-5 { box-shadow: 0 0 40px 10px #ff4dff; }
+.fire-era-6 { box-shadow: 0 0 40px 10px purple; }
+
+.fire-flare .fire-inner {
+  filter: brightness(3) saturate(2);
+}
+
+.flame-bar,
+.era-progress {
+  width: 90%;
+  border-radius: 14px;
+  margin: 12px auto;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+}
+.flame-bar {
+  height: 26px;
+  background: rgba(0, 0, 0, 0.25);
+}
+#flameLevel {
+  height: 100%;
+  background: linear-gradient(to right, #ff5500, #ffaa00);
+  transition: width 0.3s;
+}
+.era-progress {
+  height: 20px;
+  background: rgba(0, 0, 0, 0.2);
+}
+#eraProgress {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(to right, #ffaa00, #ffee99);
+  transition: width 0.35s;
+}
+
+.message {
+  min-height: 28px;
+  margin: 6px 0 0;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.clicks-total {
+  color: #fff;
+  opacity: 0.95;
+}
+
+/* ---------- Era Button ---------- */
+.next-era-btn {
+  opacity: 0.65;
+  border-width: 2px;
+  border-color: rgba(255, 200, 100, 0.5);
+  transition: all 0.3s ease;
+}
+.next-era-btn.active {
+  opacity: 1;
+  background: linear-gradient(to right, #ff8800, #ffaa00);
+  color: #000;
+  border-color: #ffcc00;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px #ff9900; }
+  50% { box-shadow: 0 0 22px 8px #ffd166; }
+  100% { box-shadow: 0 0 10px #ff9900; }
+}
+
+/* ---------- Floating Text ---------- */
+.float-text {
+  position: fixed;
+  color: #ff9933;
+  font-weight: 700;
+  font-size: 22px;
+  pointer-events: none;
+  text-shadow: 0 0 5px #ff6600;
+  animation: floatUp 1s ease-out forwards;
+  z-index: 20;
+}
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-60px); }
+}
+
+/* ---------- Shop UI ---------- */
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.upgrade {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  padding: 12px 14px;
+  transition: background 0.3s ease;
+}
+.upgrade:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.upg-icon { font-size: 24px; }
+.upg-title {
+  margin: 0;
+  font-weight: 800;
+  color: var(--accent);
+}
+.upg-desc {
+  margin: 4px 0 8px;
+  opacity: 0.9;
+}
+.upg-bottom {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.upg-buy {
+  backdrop-filter: blur(6px);
+}
+
+/* ---------- Buttons ---------- */
+.btn-warning {
+  background: rgba(255, 180, 0, 0.55);
+  border: none;
+  box-shadow: 0 0 8px rgba(255, 180, 0, 0.25);
+  transition: all 0.3s ease;
+}
+.btn-warning:hover {
+  background: rgba(255, 200, 0, 0.7);
+  box-shadow: 0 0 15px rgba(255, 200, 0, 0.6);
+}
+
+/* ---------- Inputs ---------- */
+input.form-control {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 10px 14px;
+  transition: background 0.3s ease, border 0.3s ease;
+}
+input.form-control:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 200, 0, 0.6);
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 200, 0, 0.2);
+  color: #fff;
+}
+::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+.err { min-height: 1em; }
+
+/* ---------- Page Backgrounds ---------- */
+.bg-image {
+  background: url('../images/1.png') center/cover fixed no-repeat;
+  min-height: 100vh;
+  color: #fff;
+}
+
+/* ---------- Form Wrapper ---------- */
+.form-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ---------- About Page Wide Layout ---------- */
+.wide-about {
+  max-width: 1100px;
+  margin-inline: auto;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(25px);
+}
+@media (min-width:1400px) {
+  .wide-about { max-width: 1250px; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .fire-button { width: 200px; height: 200px; }
+  .fire-inner { width: 150px; height: 150px; }
+}
+/* ---------- About Duo Section ---------- */
+.about-duo .glass {
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 22px;
+  transition: transform 0.4s ease, background 0.4s ease;
+}
+
+.about-duo .glass:hover {
+  background: rgba(0, 0, 0, 0.35);
+  transform: translateY(-4px);
+}
+
+/* Equal height alignment */
+.about-duo .row {
+  align-items: stretch;
+}
+
+/* Responsive stacking */
+@media (max-width: 992px) {
+  .about-duo .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+/* ---------- Welcome Modal ---------- */
+.welcome-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: min(90%, 600px);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  color: #fff;
+  border-radius: 24px;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s ease;
+  box-shadow: 0 0 25px rgba(255, 180, 0, 0.3);
+}
+
+.welcome-modal.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* optional glowing border */
+.welcome-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  border: 2px solid rgba(255, 200, 100, 0.3);
+  pointer-events: none;
+}
+/* ---------- Fix for textarea (glass style like inputs) ---------- */
+textarea.form-control {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 10px 14px;
+  resize: vertical;
+  transition: background 0.3s ease, border 0.3s ease;
+}
+
+textarea.form-control:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 200, 0, 0.6);
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 200, 0, 0.2);
+  color: #fff;
+}
+
+/* ---------- Remove underline from brand ---------- */
+.navbar-brand {
+  text-decoration: none !important;
+}
+.navbar-brand:hover {
+  text-decoration: none !important;
+}
+button[type="submit"], .btn-primary {
+  background: linear-gradient(90deg, #ffb347, #ffaa00);
+  border: none;
+  color: #000;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(255, 200, 0, 0.4);
+  transition: all 0.3s ease;
+}
+button[type="submit"]:hover, .btn-primary:hover {
+  background: linear-gradient(90deg, #ffaa00, #ffd166);
+  box-shadow: 0 0 20px rgba(255, 220, 100, 0.6);
+}
+/* ---------- Unified About Page Styling ---------- */
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.about-hero h1 {
+  font-weight: 800;
+  background: linear-gradient(90deg, #ffb347, #ff8800);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(255,150,0,0.3);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+}
+.about-hero p {
+  max-width: 750px;
+  margin: 1rem auto 0;
+  opacity: 0.9;
+}
+
+/* Container */
+.about-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* All cards unified */
+.about-card,
+.about-duo .glass {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  color: #fff;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+  padding: 2.5rem;
+  transition: all 0.4s ease;
+}
+
+.about-card:hover,
+.about-duo .glass:hover {
+  background: rgba(0, 0, 0, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px rgba(255,150,0,0.25);
+}
+
+/* Accent headers */
+.about-card h2,
+.about-card h3,
+.about-hero h1 {
+  background: linear-gradient(90deg, #ffb347, #ff8800);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+/* Team layout */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+.team-grid p {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+/* ---------- Theme logic ---------- */
+
+/* Light mode → all black text */
+html[data-theme="light"] body .about-section,
+html[data-theme="light"] body .about-hero,
+html[data-theme="light"] body .about-card,
+html[data-theme="light"] body .about-duo .glass,
+html[data-theme="light"] body .team-grid {
+  color: #111 !important;
+}
+
+/* Dark mode → all white text */
+html[data-theme="dark"] body .about-section,
+html[data-theme="dark"] body .about-hero,
+html[data-theme="dark"] body .about-card,
+html[data-theme="dark"] body .about-duo .glass,
+html[data-theme="dark"] body .team-grid {
+  color: #fff !important;
+}
+
+/* Optional: subtle brightening for dark mode */
+html[data-theme="dark"] .about-card,
+html[data-theme="dark"] .about-duo .glass {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.1);
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — Fire of Civilization</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .about-hero {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 3rem;
+    }
+    .about-hero h1 {
+      font-weight: 800;
+      background: linear-gradient(90deg, #ffb347, #ff8800);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 10px rgba(255,150,0,0.3);
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+    }
+    .about-hero p {
+      max-width: 750px;
+      margin: 1rem auto 0;
+      color: rgba(255,255,255,0.85);
+    }
+    .about-section {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .about-card {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      color: #fff;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+      padding: 2.5rem;
+      transition: all 0.4s ease;
+    }
+    .about-card:hover {
+      background: rgba(0, 0, 0, 0.35);
+      transform: translateY(-4px);
+      box-shadow: 0 0 30px rgba(255,150,0,0.25);
+    }
+    .about-card h2, .about-card h3 {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    .team-grid p {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+  html[data-theme="dark"] body .about-section,
+  html[data-theme="dark"] body .about-hero {
+    color: #111 !important;
+  }
+
+  html[data-theme="dark"] body .about-section strong {
+    color: #000 !important;
+  }
+
+  html[data-theme="dark"] body .about-card p,
+  html[data-theme="dark"] body .about-hero p {
+    color: #111 !important;
+  }
+
+.about-card h2,
+.about-card h3,
+.about-hero h1 {
+  background: linear-gradient(90deg, #ffb347, #ff8800);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+    footer a { text-decoration: underline; }
+  </style>
+</head>
+
+<body class="bg-image">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="glass glass-nav sticky-top">
+    <nav class="navbar navbar-expand-lg container">
+      <a class="navbar-brand fw-bold text-white" href="index.html">🔥 Fire of Civilization</a>
+      <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div id="nav" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a id="authLink" class="nav-link" href="login.html">Log In</a></li>
+          <li class="nav-item ms-lg-3">
+            <button id="themeToggle" class="btn btn-outline-light btn-sm">🌓 Theme</button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" class="container-fluid py-5">
+    <section class="about-hero">
+      <h1>🔥 About Fire of Civilization</h1>
+      <p>An interactive journey through the eras of human progress — where keeping the fire alive means keeping civilization alive.</p>
+    </section>
+
+    <section class="about-section px-3 px-md-5">
+      <div class="about-card mb-5 text-center">
+        <h2>🌍 Our Concept</h2>
+        <p class="mt-3 mb-4">
+          “Fire of Civilization” is a web clicker game inspired by humanity’s eternal bond with fire — from the first spark in the prehistoric age to the infinite energy of the future.
+          Every click represents human effort, discovery, and progress.
+        </p>
+        <p>
+          As you nurture the flame, you journey through six beautifully crafted eras:
+          <strong>Prehistoric, Ancient, Medieval, Industrial, Modern, and Future</strong>.
+          Each age unveils new upgrades, challenges, and philosophies — symbolizing how our world evolved from warmth and light.
+        </p>
+      </div>
+
+     <section class="about-duo container my-5">
+  <div class="row justify-content-center g-4">
+    <div class="col-md-6">
+      <div class="glass p-5 text-center h-100">
+        <h3 class="h4 fw-bold text-accent">🎮 The Gameplay</h3>
+        <p class="mt-3">
+          Tap the fire to earn energy and fuel your progress.  
+          Upgrade your civilization, slow the flame’s decay, and witness your world evolve.  
+          Every mechanic reflects the rhythm of human growth and perseverance.
+        </p>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="glass p-5 text-center h-100">
+        <h3 class="h4 fw-bold text-accent">🌟 The Vision</h3>
+        <p class="mt-3">
+          This project combines simplicity and symbolism.  
+          We wanted to create something calm yet meaningful —  
+          a reminder that even the smallest sparks can change the world.  
+          The fire represents human creativity, resilience, and shared progress.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+      <div class="about-card mt-5 text-center">
+        <h3>🧑‍💻 The Team</h3>
+        <div class="team-grid">
+          <p><strong>Sofiya Akhmadishina</strong><br>Lead Developer & Designer</p>
+          <p><strong>Dias Bakhytuly</strong><br>UI & Game Balance</p>
+          <p><strong>Nurayat Yerken</strong><br>Era Artwork & Visual FX</p>
+          <p><strong>Nazira Saimaganbetova</strong><br>Sound & Concept</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container text-center py-4 text-white-50">
+    © 2025 Fire of Civilization · <a class="text-white" href="contact.html">Contact</a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
