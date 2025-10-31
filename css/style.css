@@ -1,9 +1,3 @@
-/* =====================================================
-   Fire of Civilization — Full CSS
-   Ultra-Clear Soft Glass + Responsive Game UI
-===================================================== */
-
-/* ---------- Root Theme Variables ---------- */
 :root {
   --accent: #ffb347;
   --accent2: #ffaa00;
@@ -11,7 +5,7 @@
   --text-light: #ffffff;
 }
 
-/* ---------- Layout Fix (Header → Main → Footer) ---------- */
+
 html, body {
   display: flex;
   flex-direction: column;
@@ -35,9 +29,7 @@ footer {
   flex-shrink: 0;
 }
 
-/* =====================================================
-   Glass & Theme Modes
-===================================================== */
+
 .glass {
   border-radius: 20px;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
@@ -60,7 +52,7 @@ html[data-theme="dark"] body .glass {
   -webkit-backdrop-filter: blur(24px);
 }
 
-/* ---------- Transparent Navbar ---------- */
+
 .glass-nav {
   background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(25px);
@@ -72,7 +64,6 @@ html[data-theme="dark"] body .glass {
   border-color: rgba(255, 255, 255, 0.04);
 }
 
-/* ---------- Text & Links ---------- */
 .glass a {
   color: #fff;
   text-decoration: underline;
@@ -84,7 +75,6 @@ html[data-theme="light"] .glass a {
   color: var(--accent);
 }
 
-/* ---------- Navbar ---------- */
 .navbar-brand {
   text-decoration: none !important;
   color: #fff;
@@ -111,7 +101,7 @@ html[data-theme="light"] .glass a {
 }
 
 
-/* ---------- Accessibility ---------- */
+
 .skip-link {
   position: absolute;
   left: -9999px;
@@ -128,9 +118,7 @@ html[data-theme="light"] .glass a {
   padding: 6px 10px;
 }
 
-/* =====================================================
-   Game Interface
-===================================================== */
+
 .fire-button {
   position: relative;
   width: 220px;
@@ -208,7 +196,7 @@ html[data-theme="light"] .glass a {
   opacity: 0.95;
 }
 
-/* ---------- Era Button ---------- */
+
 .next-era-btn {
   opacity: 0.65;
   border-width: 2px;
@@ -228,7 +216,7 @@ html[data-theme="light"] .glass a {
   100% { box-shadow: 0 0 10px #ff9900; }
 }
 
-/* ---------- Floating Text ---------- */
+
 .float-text {
   position: fixed;
   color: #ff9933;
@@ -244,7 +232,7 @@ html[data-theme="light"] .glass a {
   100% { opacity: 0; transform: translateY(-60px); }
 }
 
-/* ---------- Shop UI ---------- */
+
 .shop-list {
   display: flex;
   flex-direction: column;
@@ -285,7 +273,7 @@ html[data-theme="light"] .glass a {
   backdrop-filter: blur(6px);
 }
 
-/* ---------- Buttons ---------- */
+
 .btn-warning {
   background: rgba(255, 180, 0, 0.55);
   border: none;
@@ -297,7 +285,7 @@ html[data-theme="light"] .glass a {
   box-shadow: 0 0 15px rgba(255, 200, 0, 0.6);
 }
 
-/* ---------- Inputs ---------- */
+
 input.form-control {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
@@ -318,14 +306,14 @@ input.form-control:focus {
 }
 .err { min-height: 1em; }
 
-/* ---------- Page Backgrounds ---------- */
+
 .bg-image {
   background: url('../images/1.png') center/cover fixed no-repeat;
   min-height: 100vh;
   color: #fff;
 }
 
-/* ---------- Form Wrapper ---------- */
+
 .form-container {
   display: flex;
   align-items: center;
@@ -333,7 +321,6 @@ input.form-control:focus {
   min-height: 100vh;
 }
 
-/* ---------- About Page Wide Layout ---------- */
 .wide-about {
   max-width: 1100px;
   margin-inline: auto;
@@ -344,12 +331,12 @@ input.form-control:focus {
   .wide-about { max-width: 1250px; }
 }
 
-/* ---------- Responsive ---------- */
+
 @media (max-width: 992px) {
   .fire-button { width: 200px; height: 200px; }
   .fire-inner { width: 150px; height: 150px; }
 }
-/* ---------- About Duo Section ---------- */
+
 .about-duo .glass {
   background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(25px);
@@ -363,19 +350,19 @@ input.form-control:focus {
   transform: translateY(-4px);
 }
 
-/* Equal height alignment */
+
 .about-duo .row {
   align-items: stretch;
 }
 
-/* Responsive stacking */
+
 @media (max-width: 992px) {
   .about-duo .col-md-6 {
     flex: 0 0 100%;
     max-width: 100%;
   }
 }
-/* ---------- Welcome Modal ---------- */
+
 .welcome-modal {
   position: fixed;
   top: 50%;
@@ -417,7 +404,7 @@ input.form-control:focus {
   pointer-events: all;
 }
 
-/* optional glowing border */
+
 .welcome-modal::before {
   content: "";
   position: absolute;
@@ -426,7 +413,7 @@ input.form-control:focus {
   border: 2px solid rgba(255, 200, 100, 0.3);
   pointer-events: none;
 }
-/* ---------- Fix for textarea (glass style like inputs) ---------- */
+
 textarea.form-control {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
@@ -445,7 +432,6 @@ textarea.form-control:focus {
   color: #fff;
 }
 
-/* ---------- Remove underline from brand ---------- */
 .navbar-brand {
   text-decoration: none !important;
 }
@@ -464,7 +450,6 @@ button[type="submit"]:hover, .btn-primary:hover {
   background: linear-gradient(90deg, #ffaa00, #ffd166);
   box-shadow: 0 0 20px rgba(255, 220, 100, 0.6);
 }
-/* ---------- Unified About Page Styling ---------- */
 
 .about-hero {
   text-align: center;
@@ -484,13 +469,13 @@ button[type="submit"]:hover, .btn-primary:hover {
   opacity: 0.9;
 }
 
-/* Container */
+
 .about-section {
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* All cards unified */
+
 .about-card,
 .about-duo .glass {
   background: rgba(0, 0, 0, 0.25);
@@ -511,7 +496,7 @@ button[type="submit"]:hover, .btn-primary:hover {
   box-shadow: 0 0 30px rgba(255,150,0,0.25);
 }
 
-/* Accent headers */
+
 .about-card h2,
 .about-card h3,
 .about-hero h1 {
@@ -521,7 +506,7 @@ button[type="submit"]:hover, .btn-primary:hover {
   font-weight: 700;
 }
 
-/* Team layout */
+
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -535,11 +520,8 @@ button[type="submit"]:hover, .btn-primary:hover {
   padding: 1rem;
 }
 
-/* =======================================================
-   🔥 Fire of Civilization — Unified About Page Theme Logic
-========================================================= */
 
-/* ===== General Structure ===== */
+
 .about-hero {
   text-align: center;
   margin-bottom: 3rem;
@@ -566,7 +548,6 @@ button[type="submit"]:hover, .btn-primary:hover {
   margin: 0 auto;
 }
 
-/* ===== Card Base Style ===== */
 .about-card {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -585,7 +566,7 @@ button[type="submit"]:hover, .btn-primary:hover {
   box-shadow: 0 0 30px rgba(255,150,0,0.25);
 }
 
-/* ===== Headings ===== */
+
 .about-card h2,
 .about-card h3,
 .about-hero h1 {
@@ -595,7 +576,6 @@ button[type="submit"]:hover, .btn-primary:hover {
   font-weight: 700;
 }
 
-/* ===== Team Grid ===== */
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -610,9 +590,7 @@ button[type="submit"]:hover, .btn-primary:hover {
   padding: 1rem;
 }
 
-/* ===== Theme Behavior ===== */
 
-/* Light mode — keep white text */
 html[data-theme="light"] body .about-section,
 html[data-theme="light"] body .about-hero,
 html[data-theme="light"] body .about-card,
@@ -621,7 +599,7 @@ html[data-theme="light"] body .team-grid {
   color: #fff !important;
 }
 
-/* Dark mode — also white text for contrast */
+
 html[data-theme="dark"] body .about-section,
 html[data-theme="dark"] body .about-hero,
 html[data-theme="dark"] body .about-card,
@@ -630,7 +608,7 @@ html[data-theme="dark"] body .team-grid {
   color: #fff !important;
 }
 
-/* Slightly brighter background in dark mode */
+
 html[data-theme="dark"] .about-card,
 html[data-theme="dark"] .about-duo .glass {
   background: rgba(255, 255, 255, 0.15);
@@ -643,7 +621,20 @@ html[data-theme="light"] .nav-link:hover,
 html[data-theme="light"] .nav-link.active {
   color: #ff8800;
 }
-/* Footer Links */
+.welcome-modal.active {
+  animation: modalFade 0.6s ease forwards;
+}
+@keyframes modalFade {
+  from { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+html { scroll-behavior: smooth; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#ff8800, #ffaa00);
+  border-radius: 10px;
+}
+
+
 footer a {
   text-decoration: underline;
 }
