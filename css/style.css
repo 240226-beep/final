@@ -85,19 +85,31 @@ html[data-theme="light"] .glass a {
 }
 
 /* ---------- Navbar ---------- */
+.navbar-brand {
+  text-decoration: none !important;
+  color: #fff;
+  font-weight: 700;
+}
+
+.navbar-brand:hover {
+  text-decoration: none !important;
+  color: #ffb347;
+}
+
 .nav-link {
   color: #fff;
   opacity: 0.9;
-  transition: 0.3s;
+  text-decoration: none !important;
+  transition: color 0.3s ease, opacity 0.3s ease;
 }
-.nav-link.active,
-.nav-link:hover {
+
+.nav-link:hover,
+.nav-link.active {
   opacity: 1;
-  text-decoration: underline;
+  color: #ffb347;
+  text-decoration: none !important;
 }
-.navbar-toggler {
-  filter: invert(1);
-}
+
 
 /* ---------- Accessibility ---------- */
 .skip-link {
@@ -523,18 +535,93 @@ button[type="submit"]:hover, .btn-primary:hover {
   padding: 1rem;
 }
 
-/* ---------- Theme logic ---------- */
+/* =======================================================
+   🔥 Fire of Civilization — Unified About Page Theme Logic
+========================================================= */
 
-/* Light mode → all black text */
+/* ===== General Structure ===== */
+.about-hero {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #fff;
+}
+
+.about-hero h1 {
+  font-weight: 800;
+  background: linear-gradient(90deg, #ffb347, #ff8800);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(255,150,0,0.3);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+}
+
+.about-hero p {
+  max-width: 750px;
+  margin: 1rem auto 0;
+  color: rgba(255,255,255,0.85);
+}
+
+.about-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===== Card Base Style ===== */
+.about-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  color: #fff;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+  padding: 2.5rem;
+  transition: all 0.4s ease;
+}
+
+.about-card:hover {
+  background: rgba(0, 0, 0, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px rgba(255,150,0,0.25);
+}
+
+/* ===== Headings ===== */
+.about-card h2,
+.about-card h3,
+.about-hero h1 {
+  background: linear-gradient(90deg, #ffb347, #ff8800);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+/* ===== Team Grid ===== */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.team-grid p {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+/* ===== Theme Behavior ===== */
+
+/* Light mode — keep white text */
 html[data-theme="light"] body .about-section,
 html[data-theme="light"] body .about-hero,
 html[data-theme="light"] body .about-card,
 html[data-theme="light"] body .about-duo .glass,
 html[data-theme="light"] body .team-grid {
-  color: #111 !important;
+  color: #fff !important;
 }
 
-/* Dark mode → all white text */
+/* Dark mode — also white text for contrast */
 html[data-theme="dark"] body .about-section,
 html[data-theme="dark"] body .about-hero,
 html[data-theme="dark"] body .about-card,
@@ -543,9 +630,20 @@ html[data-theme="dark"] body .team-grid {
   color: #fff !important;
 }
 
-/* Optional: subtle brightening for dark mode */
+/* Slightly brighter background in dark mode */
 html[data-theme="dark"] .about-card,
 html[data-theme="dark"] .about-duo .glass {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.1);
+}
+html[data-theme="light"] .nav-link {
+  color: #111;
+}
+html[data-theme="light"] .nav-link:hover,
+html[data-theme="light"] .nav-link.active {
+  color: #ff8800;
+}
+/* Footer Links */
+footer a {
+  text-decoration: underline;
 }
