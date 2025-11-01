@@ -233,7 +233,7 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
 
   // --- Game state --------------------------------------------------------
   let flame = 100;                // 0..100
-  let clickPower = 1000;             // base per click
+  let clickPower = 1;             // base per click
   let flamePoints = 0;            // currency
   let eraScore = 0;               // counts towards thresholds
   let totalClicks = 0;
