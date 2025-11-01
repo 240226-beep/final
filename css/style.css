@@ -680,14 +680,29 @@ body, button, .fire-button, .upgrade {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
-html, body {
-  touch-action: manipulation;          
-  -webkit-user-select: none;
-  user-select: none;
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  z-index: 1000;
+}
+.overlay.active {
+  display: block;
 }
 
-button, .fire-button {
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+.modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--glass-bg, rgba(255,255,255,0.15));
+  border-radius: 12px;
+  padding: 20px 30px;
+  display: none;
+  z-index: 1001;
+  color: #fff;
+  max-width: 420px;
 }
-
+.modal.active {
+  display: block;
+}
