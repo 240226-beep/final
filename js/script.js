@@ -847,3 +847,14 @@ document.addEventListener('touchend', function (event) {
   }
   window.lastTouch = now;
 }, false);
+["click", "touchstart"].forEach(evt => {
+  fireButton.addEventListener(evt, (e) => {
+    e.preventDefault(); 
+    handleFireClick(e);
+  }, { passive: false });
+});
+
+function handleFireClick(e) {
+  totalClicks++;
+}
+
