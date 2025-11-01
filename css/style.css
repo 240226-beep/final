@@ -680,3 +680,14 @@ body, button, .fire-button, .upgrade {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
+html, body {
+  touch-action: manipulation;          
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button, .fire-button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
