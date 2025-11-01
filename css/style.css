@@ -671,3 +671,12 @@ main, .container, section, footer {
 .upgrade::after {
   pointer-events: none;
 }
+#endGameModal.active, #endOverlay.active { display: flex; opacity: 1; }
+html, body {
+  touch-action: manipulation;
+}
+body, button, .fire-button, .upgrade {
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
