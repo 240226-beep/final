@@ -840,3 +840,10 @@ function showEndGameModal() {
 
   init();
 })();
+document.addEventListener('touchend', function (event) {
+  const now = Date.now();
+  if (window.lastTouch && (now - window.lastTouch) < 400) {
+    event.preventDefault(); 
+  }
+  window.lastTouch = now;
+}, false);
