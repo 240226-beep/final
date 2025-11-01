@@ -233,7 +233,7 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
 
   // --- Game state --------------------------------------------------------
   let flame = 100;                // 0..100
-  let clickPower = 1;             // base per click
+  let clickPower = 1000;             // base per click
   let flamePoints = 0;            // currency
   let eraScore = 0;               // counts towards thresholds
   let totalClicks = 0;
@@ -250,6 +250,9 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
   const purchasedCounts = Object.create(null);
   let smartControlBuys=0, marbleHearthBuys=0, alchemistBuys=0, ancientSparkBuys=0, quantumClickerBuys=0;
   let costDiscountPercent=0, workShiftBonus=0;
+  if (localStorage.getItem("costDiscountPercent")) {
+    costDiscountPercent = parseFloat(localStorage.getItem("costDiscountPercent")) || 0;
+  }
 
   // Timers (single decay + single passive per upgrade)
   let decayLoop = null;
@@ -380,13 +383,13 @@ function updateProgressUI() {
     }
     gameOver();
   }
+function gameOver() {
+  if (decayLoop) clearInterval(decayLoop);
+  Object.keys(passiveIntervals).forEach(k => clearInterval(passiveIntervals[k]));
+  fireButton.disabled = true;
+  showFireOutModal();
+}
 
-  function gameOver() {
-    if (decayLoop) clearInterval(decayLoop);
-    Object.keys(passiveIntervals).forEach(k => clearInterval(passiveIntervals[k]));
-    setMessage("💀 The fire is out. Civilization has fallen.", 2800);
-    fireButton.disabled = true;
-  }
 
   // --- Upgrades Catalog --------------------------------------------------
   // NOTE: For passive “tickers”, we attach ONE interval per upgrade title,
@@ -472,7 +475,7 @@ function updateProgressUI() {
           if (n>0) { addFlame(3 * n); updateFlameUI(); }
         }),
         () => { percentReduction = Math.min(0.95, percentReduction + 0.05); },
-        () => { costDiscountPercent = Math.min(0.9,  costDiscountPercent + 0.10); },
+        () => { costDiscountPercent = Math.min(0.9, costDiscountPercent + 0.10);localStorage.setItem("costDiscountPercent", costDiscountPercent.toString()); },
         () => {} 
       ]
     },
@@ -522,16 +525,22 @@ function updateProgressUI() {
 
   // --- Passive interval helper ------------------------------------------
   function ensurePassive(title, ms, tickFn) {
-    if (passiveIntervals[title]) return;   // already ticking
+    if (passiveIntervals[title]) return;   
     passiveIntervals[title] = setInterval(tickFn, ms);
   }
 
-  function effectiveCost(base) {
-    return Math.max(1, Math.ceil(base * (1 - costDiscountPercent)));
-  }
+function effectiveCost(base) {
+  const discount = costDiscountPercent || 0;
+  const clean = 1 - discount;
+  const value = base * clean;
+  return Math.round(value); 
+}
+
 
   // --- Shop --------------------------------------------------------------
   function renderShop() {
+    if (era === 1) costDiscountPercent = 0;
+
   if (!shopList) return;
   const data = eraUpgrades[era];
   if (!data) {
@@ -616,18 +625,21 @@ function updateProgressUI() {
 
 
   function tryBuyUpgrade(e, idx, title) {
-    const data = eraUpgrades[e];
-    if (!data) return;
-    console.log("test")
-    const max  = data.max[idx];
-    const cost = effectiveCost(data.cost[idx]);
-    const cur  = purchasedCounts[title] || 0;
+  const data = eraUpgrades[e];
+  if (!data) return;
 
-    if (cur >= max) { setMessage("Maxed out!"); return; }
-    if (flamePoints < cost) { setMessage("Not enough points!"); return; }
+  const baseCost = data.cost[idx];
+  const cur = purchasedCounts[title] || 0;
+  const max = data.max[idx];
 
-    flamePoints -= cost;
-    purchasedCounts[title] = cur + 1;
+  const displayCost = effectiveCost(baseCost); 
+  const cost = displayCost; 
+
+  if (cur >= max) { setMessage("Maxed out!"); return; }
+  if (flamePoints < cost) { setMessage("Not enough points!"); return; }
+  flamePoints -= cost;
+
+  purchasedCounts[title] = cur + 1;
     const n = purchasedCounts[title];
     log(`Purchased ${title}: ${n}/${max} (cost ${cost})`);
 
@@ -639,9 +651,8 @@ function updateProgressUI() {
 
   if (title.includes("Dry Branches") || title.includes("Torch of Olympus") || title.includes("Forge")) {
     pointMultiplier += 0.2; 
+  
   }
-
-  addFlame(5, true);
 
     if (upgradeSound) { try { upgradeSound.currentTime = 0; upgradeSound.play(); } catch {} }
     setMessage(`🔥 Purchased ${title} (${n}/${max})`);
@@ -822,10 +833,28 @@ function showEndGameModal() {
     location.reload();
   });
 }
+function showFireOutModal() {
+  const modal = document.getElementById("fireOutModal");
+  const overlay = document.getElementById("fireOutOverlay");
+  const restartBtn = document.getElementById("restartFireBtn");
+  if (!modal || !overlay || !restartBtn) return;
+
+  modal.classList.add("active");
+  overlay.classList.add("active");
+
+  setMessage("💀 The Fire is extinguished...", 2500);
+
+  restartBtn.addEventListener("click", () => {
+    modal.classList.remove("active");
+    overlay.classList.remove("active");
+    location.reload();
+  });
+}
 
 
   // --- Init --------------------------------------------------------------
   function init() {
+    costDiscountPercent = 0;
     if (eraText) eraText.textContent = eraNames[0];
     if (document.body) document.body.style.background = `url(${backgrounds[0]}) center/cover fixed no-repeat`;
     fireButton.classList.add(fireClasses[0]);
@@ -850,4 +879,3 @@ document.addEventListener('touchend', function (event) {
 function handleFireClick(e) {
   totalClicks++;
 }
-
