@@ -211,12 +211,12 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
   const eraText      = document.querySelector(".era");
   const shopList     = $("shopList");
   const shopTheme    = $("shopTheme");
-  const upgradeSearch= $("upgradeSearch");        // optional
+  const upgradeSearch= $("upgradeSearch");        
   const nextEraBtn   = $("nextEraBtn");
 
-  const clickSound   = $("clickSound");           // optional
-  const upgradeSound = $("upgradeSound");         // optional
-  const newEraSound  = $("newEraSound");          // optional
+  const clickSound   = $("clickSound");          
+  const upgradeSound = $("upgradeSound");        
+  const newEraSound  = $("newEraSound");          
 
   // --- Static visuals ----------------------------------------------------
   const backgrounds  = ["images/1.png","images/2.png","images/3.png","images/4.png","images/5.png","images/6.png"];
@@ -233,13 +233,14 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
 
   // --- Game state --------------------------------------------------------
   let flame = 100;                // 0..100
-  let clickPower = 3;             // base per click
+  let clickPower = 1;             // base per click
   let flamePoints = 0;            // currency
   let eraScore = 0;               // counts towards thresholds
   let totalClicks = 0;
   let era = 1;                    // 1..6
+  let pointMultiplier = 1;
 
-  let baseDecrease = 1;           // per-second base decay (per era)
+  let baseDecrease = 4;           // per-second base decay (per era)
   let flatReduction = 0;          // absolute reduction of decay
   let percentReduction = 0;       // percentage reduction (0..0.99)
   let quantumFlameActive = false; // stops decay
@@ -274,14 +275,17 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
   }
 function addFlame(amount, addPoints = false) {
   flame = Math.min(100, flame + amount);
+
   if (addPoints) {
     flamePoints += amount;
     eraScore += amount;
   }
+
   updateFlameUI();
   updatePointsUI();
   updateProgressUI();
 }
+
 
 
   function clampFlame() {
@@ -312,6 +316,14 @@ function addFlame(amount, addPoints = false) {
     const totalCost = data.cost.reduce((sum, cost, i) => sum + cost * data.max[i], 0);
     return totalCost;
   }
+function getThreshold(eraIndex = era) {
+  const data = eraUpgrades[eraIndex];
+  if (!data) return 0;
+
+  // Sum of (cost * max purchases) for this era
+  const totalCost = data.cost.reduce((sum, cost, i) => sum + cost * data.max[i], 0);
+  return totalCost; // full 100% of all upgrade costs
+}
 
 function updateProgressUI() {
   const eraGoal = getEraThreshold(era);
@@ -342,7 +354,7 @@ function updateProgressUI() {
   }
 
   function setEraBase() {
-    baseDecrease = 1 + 5.0*(era-1); // era 1 => 1, era 2 => 6, etc.
+    baseDecrease = 1 + 12*(era-1); // era 1 => 1, era 2 => 6, etc.
     log("Era", era, "baseDecrease:", baseDecrease);
   }
 
@@ -389,7 +401,7 @@ function updateProgressUI() {
         "5% per buy chance to gain +1 point per click.",
         "+3🔥 every 5s per buy."
       ],
-      cost: [100,130,160,180],
+      cost: [200,130,160,180],
       max:  [5,5,5,5],
       apply: [
         () => { clickPower += 1; },
@@ -410,7 +422,7 @@ function updateProgressUI() {
         "+3🔥 every 6s per buy.",
         "Clicks stronger (+2 per buy)."
       ],
-      cost: [250,300,320,350],
+      cost: [250,300,350,500],
       max:  [5,5,5,5],
       apply: [
         () => { flatReduction += 1; },
@@ -431,7 +443,7 @@ function updateProgressUI() {
         "+2🔥 every 2s per buy.",
         "One-time save from extinction each era (once)."
       ],
-      cost: [400,480,520,550],
+      cost: [1000,500,500,1500],
       max:  [5,5,5,1],
       apply: [
         () => { clickPower += 3; },
@@ -452,7 +464,7 @@ function updateProgressUI() {
         "−10% cost of upgrades per buy.",
         "Every 20 clicks → +1 click power."
       ],
-      cost: [600,700,750,850],
+      cost: [800,800,1000,100],
       max:  [5,5,5,5],
       apply: [
         (t) => ensurePassive(t, 2000, () => {
@@ -473,7 +485,7 @@ function updateProgressUI() {
         "When flame <50% → reduce speed by 15% per buy (max 3).",
         "Restore ~3% flame per second (once)."
       ],
-      cost: [900,1000,1100,1300],
+      cost: [1100,1200,1300,1500],
       max:  [5,5,3,1],
       apply: [
         () => { percentReduction = Math.min(0.95, percentReduction + 0.05); },
@@ -494,7 +506,7 @@ function updateProgressUI() {
         "Reduce decay (−10% per buy).",
         "Eternal glow (no decay, once)."
       ],
-      cost: [2000,2500,3000,4000],
+      cost: [5000,5000,5000,100000],
       max:  [5,5,5,1],
       apply: [
         (t) => { quantumClickerBuys = purchasedCounts[t] || 0; },
@@ -614,24 +626,26 @@ function updateProgressUI() {
     if (cur >= max) { setMessage("Maxed out!"); return; }
     if (flamePoints < cost) { setMessage("Not enough points!"); return; }
 
-    // pay & record
     flamePoints -= cost;
     purchasedCounts[title] = cur + 1;
     const n = purchasedCounts[title];
     log(`Purchased ${title}: ${n}/${max} (cost ${cost})`);
 
-    // apply effect (once per purchase)
+
     const applier = data.apply[idx];
     if (typeof applier === "function") {
-      // pass title if function expects an argument (for passives)
       applier.length ? applier(title) : applier();
     }
 
-    // Feedback
+  if (title.includes("Dry Branches") || title.includes("Torch of Olympus") || title.includes("Forge")) {
+    pointMultiplier += 0.2; 
+  }
+
+  addFlame(5, true);
+
     if (upgradeSound) { try { upgradeSound.currentTime = 0; upgradeSound.play(); } catch {} }
     setMessage(`🔥 Purchased ${title} (${n}/${max})`);
 
-    // UI updates
     updatePointsUI();
     refreshShopAffordability();
     updateProgressUI();
@@ -700,23 +714,38 @@ function updateEraButtonState() {
   nextEraBtn.textContent = ready ? "✨ Advance to Next Era" : "Advance to Next Era";
 }
 
-  if (nextEraBtn) {
-    nextEraBtn.addEventListener("click", () => {
-      const need = thresholds[era-1] ?? 0;
-      const hasPts = eraScore >= need;
-      const hasUpg = allCurrentEraMaxed();
+if (nextEraBtn) {
+  nextEraBtn.addEventListener("click", () => {
+    const need = getThreshold(era);
+    const hasPts = eraScore >= need;
+    const hasUpg = allCurrentEraMaxed();
 
-      if (!hasPts && !hasUpg) { setMessage("🔒 You need more flame points and all upgrades to advance!"); return; }
-      if (!hasPts) { setMessage("🔥 You need to reach the required flame points first."); return; }
-      if (!hasUpg) { setMessage("⚙️ You must buy all upgrades of this era to proceed."); return; }
+    if (!hasPts && !hasUpg) {
+      setMessage("🔒 You need more flame points and all upgrades to advance!");
+      return;
+    }
+    if (!hasPts) {
+      setMessage(`🔥 You need ${need - eraScore} more flame points to progress.`);
+      return;
+    }
+    if (!hasUpg) {
+      setMessage("⚙️ You must buy all upgrades of this era to proceed.");
+      return;
+    }
 
-      setMessage("✨ Advancing to the next era...", 1200);
-      goNextEra();
-    });
-  }
+    setMessage("✨ Advancing to the next era...", 1200);
+    goNextEra();
+  });
+}
+
+
 
   function goNextEra() {
-    if (era >= 6) { setMessage("🏆 Final Era reached!"); return; }
+    if (era >= 6) {
+  showEndGameModal();
+  return;
+}
+
     era++;
     eraScore = 0;
     fireGuardianUsed = false;
@@ -736,18 +765,22 @@ function updateEraButtonState() {
   }
 
   // --- Clicking the fire -------------------------------------------------
-  fireButton.addEventListener("click", (e) => {
-    totalClicks++;
-    let flameGain = clickPower;
-    if (alchemistBuys > 0 && totalClicks % 10 === 0) {
-      const mult = Math.pow(2, alchemistBuys);
-      flameGain *= mult;
-      setMessage(`🧪 Alchemist boost ×${mult}!`, 900);
-    }
-    if (quantumClickerBuys > 0) flameGain += 100 * quantumClickerBuys;
+ fireButton.addEventListener("click", (e) => {
+  totalClicks++;
+
+  let flameGain = clickPower;
+
+  if (alchemistBuys > 0 && totalClicks % 10 === 0) {
+    const mult = Math.pow(2, alchemistBuys);
+    flameGain *= mult;
+    setMessage(`🧪 Alchemist boost ×${mult}!`, 900);
+  }
+
+  if (quantumClickerBuys > 0) flameGain += 100 * quantumClickerBuys;
 
   addFlame(flameGain);
-  let pointsGain = 1;
+
+  let pointsGain = Math.max(1, Math.round(clickPower * pointMultiplier));
 
   if (ancientSparkBuys > 0 && Math.random() < 0.05 * ancientSparkBuys) {
     pointsGain += 1;
@@ -756,20 +789,40 @@ function updateEraButtonState() {
 
   flamePoints += pointsGain;
   eraScore += pointsGain;
-    const ws = purchasedCounts["Work Shifts"] || 0;
-    if (ws > 0 && totalClicks % 20 === 0) {
-      workShiftBonus++;
-      clickPower += 1;
-      setMessage(`🛠️ Work shift efficiency +1 (total +${workShiftBonus})`, 1000);
-    }
 
-    updateFlameUI();
-    updatePointsUI();
-    updateProgressUI();
+  const ws = purchasedCounts["Work Shifts"] || 0;
+  if (ws > 0 && totalClicks % 20 === 0) {
+    workShiftBonus++;
+    clickPower += 1;
+    setMessage(`🛠️ Work shift efficiency +1 (total +${workShiftBonus})`, 1000);
+  }
 
-    if (clickSound) { try { clickSound.currentTime = 0; clickSound.play(); } catch {} }
-    spawnFloatingText(e.clientX, e.clientY, `+${pointsGain}🔥`);
+  updateFlameUI();
+  updatePointsUI();
+  updateProgressUI();
+
+  if (clickSound) { clickSound.currentTime = 0; clickSound.play(); }
+  spawnFloatingText(e.clientX, e.clientY, `+${pointsGain}🔥`);
+});
+function showEndGameModal() {
+  const modal = document.getElementById("endGameModal");
+  const overlay = document.getElementById("endOverlay");
+  const closeBtn = document.getElementById("closeEnd");
+
+  if (!modal || !overlay || !closeBtn) return;
+
+  modal.classList.add("active");
+  overlay.classList.add("active");
+
+  setMessage("🏆 The Fire has reached the stars…", 2500);
+
+  closeBtn.addEventListener("click", () => {
+    modal.classList.remove("active");
+    overlay.classList.remove("active");
+    location.reload();
   });
+}
+
 
   // --- Init --------------------------------------------------------------
   function init() {
