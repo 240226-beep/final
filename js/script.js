@@ -612,7 +612,7 @@ window.addEventListener("DOMContentLoaded", showWelcomeModal);
         "When flame <50% → reduce speed by 15% per buy (max 3).",
         "Restore ~3% flame per second (once)."
       ],
-      cost: [2100,2200,2300,2500],
+      cost: [3000,3200,3300,3500],
       max:  [5,5,3,1],
       apply: [
         () => { percentReduction = Math.min(0.95, percentReduction + 0.05); },
