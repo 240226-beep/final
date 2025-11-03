@@ -81,7 +81,8 @@
   <audio id="upgradeSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5296f76445.mp3?filename=success-1.mp3"></audio>
   <audio id="newEraSound" src="https://cdn.pixabay.com/download/audio/2023/04/10/audio_4d1e038efb.mp3?filename=magic-transition-1.mp3"></audio>
   <!-- Welcome / Lore Popup -->
-<div id="welcomeModal" class="welcome-modal glass text-center p-5">
+<div id="welcomeOverlay" class="overlay"></div>
+<div id="welcomeModal" class="modal">
   <h2 class="fw-bold text-accent mb-3">🔥 Welcome, Firekeeper</h2>
   <p class="mb-3">
     You awaken at the dawn of humankind — a spark in the darkness.  
@@ -93,11 +94,11 @@
     Use it to unlock new eras, inventions, and the stories of humanity itself.  
     When the flame fades, so does progress. Keep it burning, Firekeeper.
   </p>
-  <button id="closeWelcome" class="btn btn-warning px-4">Begin the Journey</button>
+  <button id="startGameBtn">Begin the Journey</button>
 </div>
 <!-- Fire Extinguished Modal -->
 <div id="fireOutOverlay" class="overlay"></div>
-<div id="fireOutModal" class="modal glass text-center p-4">
+<div id="fireOutModal" class="modal glass text-center p-4" >
   <h2>💀 The Fire Has Gone Out...</h2>
   <p id="fireOutText">
     The last ember faded into darkness.<br>
@@ -108,19 +109,28 @@
 </div>
 
 <!-- End Game Modal -->
-<div id="endGameModal" class="modal glass">
-  <div class="modal-content">
-    <h2>🔥 The Flame Eternal</h2>
-    <p id="endLore">
-      Across the ages, humanity guarded the Fire — from the first spark in the darkness,
-      to the atomic glow of the stars. You have carried it through all six eras.
-    </p>
-    <p><strong>Thank you for playing <em>Fire of Civilization</em>.</strong></p>
-    <p>May your flame never fade.</p>
-    <button id="closeEnd">Return to Title</button>
+<div id="endOverlay" class="overlay"></div>
+<div id="endGameModal" class="modal">
+  <h2>🔥 The Flame Eternal</h2>
+  <p>
+    From the first spark to the stars — your civilization has transcended time.<br>
+    The eternal fire now burns in the heart of the cosmos.<br><br>
+    Thank you for playing <strong>Fire of Civilization</strong>.
+  </p>
+  <button id="closeEnd">Return to Title</button>
+</div>
+<!-- Event Alert Popup -->
+<div id="eventAlert" class="event-alert glass">
+  <div class="event-alert-content">
+    <h3 id="eventAlertTitle">Event!</h3>
+    <p id="eventAlertText"></p>
+    <button id="eventAlertBtn" class="btn btn-warning">OK</button>
   </div>
 </div>
+
 <div id="endOverlay" class="overlay"></div>
+<!-- Floating Reset Progress Button -->
+<button id="resetProgressBtn" title="Reset Progress">🔄</button>
 
 <!-- Overlay behind popup -->
 <div id="overlay" class="overlay"></div>
