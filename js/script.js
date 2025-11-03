@@ -192,9 +192,15 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
    ========================================================== */
 
 (() => {
+  if (localStorage.getItem("resetFlag") === "true") {
+  localStorage.clear();  // full wipe, including the reset flag itself
+  console.log("[FoC] Clean reset applied.");
+}
+localStorage.removeItem("fireGameData");
+
   const DEBUG = true;
   const log = (...a) => { if (DEBUG) console.log("[FoC]", ...a); };
-
+  
   // --- DOM (fail-fast but silent if missing) ----------------------------
   const $ = (id) => document.getElementById(id);
   const fireButton   = $("fireButton");
@@ -240,7 +246,7 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
   let era = 1;                    // 1..6
   let pointMultiplier = 1;
 
-  let baseDecrease = 4;           // per-second base decay (per era)
+  let baseDecrease = 1000;           // per-second base decay (per era)
   let flatReduction = 0;          // absolute reduction of decay
   let percentReduction = 0;       // percentage reduction (0..0.99)
   let quantumFlameActive = false; // stops decay
@@ -266,6 +272,64 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
     clearTimeout(setMessage._t);
     setMessage._t = setTimeout(() => { messageEl.style.opacity = 0; }, ms);
   }
+  // --- Save/Load Progress ---
+function saveGame() {
+  const state = {
+    flame,
+    flamePoints,
+    clickPower,
+    eraScore,
+    totalClicks,
+    era,
+    purchasedCounts,
+    baseDecrease,
+    flatReduction,
+    percentReduction,
+    costDiscountPercent,
+    quantumFlameActive,
+    fireGuardianUsed
+  };
+  localStorage.setItem("fireGameState", JSON.stringify(state));
+}
+
+function loadGame() {
+  const saved = localStorage.getItem("fireGameState");
+  if (!saved) return;
+  try {
+    const s = JSON.parse(saved);
+    flame = s.flame ?? flame;
+    flamePoints = s.flamePoints ?? flamePoints;
+    clickPower = s.clickPower ?? clickPower;
+    eraScore = s.eraScore ?? eraScore;
+    totalClicks = s.totalClicks ?? totalClicks;
+    era = s.era ?? era;
+    Object.assign(purchasedCounts, s.purchasedCounts ?? {});
+    baseDecrease = s.baseDecrease ?? baseDecrease;
+    flatReduction = s.flatReduction ?? flatReduction;
+    percentReduction = s.percentReduction ?? percentReduction;
+    costDiscountPercent = s.costDiscountPercent ?? costDiscountPercent;
+    quantumFlameActive = s.quantumFlameActive ?? false;
+    fireGuardianUsed = s.fireGuardianUsed ?? false;
+  } catch (e) {
+    console.warn("Failed to load saved game:", e);
+  }
+}
+
+  function showEventAlert(title, text) {
+  const modal = document.getElementById("eventAlert");
+  const t = document.getElementById("eventAlertTitle");
+  const p = document.getElementById("eventAlertText");
+  const btn = document.getElementById("eventAlertBtn");
+  if (!modal || !t || !p || !btn) return;
+
+  t.textContent = title || "Event";
+  p.textContent = text || "";
+  modal.classList.add("active");
+
+  btn.onclick = () => {
+    modal.classList.remove("active");
+  };
+}
 
   function spawnFloatingText(x, y, text="+1🔥") {
     const el = document.createElement("div");
@@ -281,7 +345,6 @@ function addFlame(amount, addPoints = false) {
 
   if (addPoints) {
     flamePoints += amount;
-    eraScore += amount;
   }
 
   updateFlameUI();
@@ -331,7 +394,6 @@ function getThreshold(eraIndex = era) {
 function updateProgressUI() {
   const eraGoal = getEraThreshold(era);
   const spent = Object.entries(purchasedCounts).reduce((sum, [title, count]) => {
-    // Only count upgrades from this era
     const data = eraUpgrades[era];
     if (!data) return sum;
     const idx = data.title.indexOf(title);
@@ -344,7 +406,16 @@ function updateProgressUI() {
   eraGoalText.textContent = `Next Era Progress: ${Math.floor(p)}%`;
 
   updateEraButtonState();
+
 }
+function colorizeProgressBar(p) {
+  if (!eraProgress) return;
+  let color = "linear-gradient(90deg,#ff9900,#ff6600)";
+  if (p > 75) color = "linear-gradient(90deg,#ffd700,#ffa500)";
+  if (p < 25) color = "linear-gradient(90deg,#804000,#ff4500)";
+  eraProgress.style.background = color;
+}
+
 
 
   function currentDecayRate() {
@@ -357,18 +428,38 @@ function updateProgressUI() {
   }
 
   function setEraBase() {
-    baseDecrease = 1 + 12*(era-1); // era 1 => 1, era 2 => 6, etc.
+      baseDecrease = 1000 * (era - 1); 
     log("Era", era, "baseDecrease:", baseDecrease);
   }
 
-  function startDecay() {
-    if (decayLoop) clearInterval(decayLoop);
+function startDecay() {
+  if (decayLoop) clearInterval(decayLoop);
+
+  function stepDecay() {
+    if (quantumFlameActive) return; 
+
+
+    let rate = baseDecrease * (1 - percentReduction);
+    if (flame < 50) rate *= (1 - 0.15 * smartControlBuys);
+    if (flame < 30) rate *= (1 - 0.05 * marbleHearthBuys);
+    rate = Math.max(0.5, rate - flatReduction); 
+
+    const intervalSpeed = Math.max(150, 1000 / (rate / 2));
+
+    clearInterval(decayLoop);
     decayLoop = setInterval(() => {
-      flame -= currentDecayRate();
-      if (flame <= 0) handleFlameOut();
+      if (quantumFlameActive) return;
+      if (flame <= 0) return handleFlameOut();
+      flame -= 1;
       updateFlameUI();
-    }, 1000);
+      saveGame(); 
+    }, intervalSpeed);
   }
+
+  stepDecay();
+  setInterval(stepDecay, 2000);
+}
+
 
   function handleFlameOut() {
     const hasGuardian = (purchasedCounts["Fire Guardian"] || 0) > 0;
@@ -389,6 +480,39 @@ function gameOver() {
   fireButton.disabled = true;
   showFireOutModal();
 }
+// --- Welcome Modal on page load ---
+function showWelcomeModal() {
+  const modal = document.getElementById("welcomeModal");
+  const overlay = document.getElementById("welcomeOverlay");
+  const startBtn = document.getElementById("startGameBtn");
+  const fireButton = document.getElementById("fireButton");
+
+  if (!modal || !overlay || !startBtn) return;
+  const saved = localStorage.getItem("fireGameState");
+  if (saved) {
+    if (fireButton) fireButton.disabled = false;
+    return;
+  }
+
+  if (fireButton) fireButton.disabled = true;
+  modal.classList.add("active");
+  overlay.classList.add("active");
+
+  startBtn.addEventListener("click", () => {
+    modal.classList.remove("active");
+    overlay.classList.remove("active");
+    if (fireButton) fireButton.disabled = false;
+  });
+}
+
+// Trigger automatically after load
+window.addEventListener("DOMContentLoaded", showWelcomeModal);
+
+// Show automatically after load
+window.addEventListener("DOMContentLoaded", showWelcomeModal);
+
+// Show automatically after load
+window.addEventListener("DOMContentLoaded", showWelcomeModal);
 
 
   // --- Upgrades Catalog --------------------------------------------------
@@ -467,7 +591,7 @@ function gameOver() {
         "−10% cost of upgrades per buy.",
         "Every 20 clicks → +1 click power."
       ],
-      cost: [800,800,1000,100],
+      cost: [2000,1800,1500,2000],
       max:  [5,5,5,5],
       apply: [
         (t) => ensurePassive(t, 2000, () => {
@@ -488,7 +612,7 @@ function gameOver() {
         "When flame <50% → reduce speed by 15% per buy (max 3).",
         "Restore ~3% flame per second (once)."
       ],
-      cost: [1100,1200,1300,1500],
+      cost: [2100,2200,2300,2500],
       max:  [5,5,3,1],
       apply: [
         () => { percentReduction = Math.min(0.95, percentReduction + 0.05); },
@@ -509,7 +633,7 @@ function gameOver() {
         "Reduce decay (−10% per buy).",
         "Eternal glow (no decay, once)."
       ],
-      cost: [5000,5000,5000,100000],
+      cost: [15000,15000,10000,100000],
       max:  [5,5,5,1],
       apply: [
         (t) => { quantumClickerBuys = purchasedCounts[t] || 0; },
@@ -640,6 +764,7 @@ function effectiveCost(base) {
   flamePoints -= cost;
 
   purchasedCounts[title] = cur + 1;
+  eraScore += cost;
     const n = purchasedCounts[title];
     log(`Purchased ${title}: ${n}/${max} (cost ${cost})`);
 
@@ -649,14 +774,10 @@ function effectiveCost(base) {
       applier.length ? applier(title) : applier();
     }
 
-  if (title.includes("Dry Branches") || title.includes("Torch of Olympus") || title.includes("Forge")) {
-    pointMultiplier += 0.2; 
-  
-  }
 
     if (upgradeSound) { try { upgradeSound.currentTime = 0; upgradeSound.play(); } catch {} }
     setMessage(`🔥 Purchased ${title} (${n}/${max})`);
-
+  saveGame();
     updatePointsUI();
     refreshShopAffordability();
     updateProgressUI();
@@ -727,18 +848,8 @@ function updateEraButtonState() {
 
 if (nextEraBtn) {
   nextEraBtn.addEventListener("click", () => {
-    const need = getThreshold(era);
-    const hasPts = eraScore >= need;
     const hasUpg = allCurrentEraMaxed();
 
-    if (!hasPts && !hasUpg) {
-      setMessage("🔒 You need more flame points and all upgrades to advance!");
-      return;
-    }
-    if (!hasPts) {
-      setMessage(`🔥 You need ${need - eraScore} more flame points to progress.`);
-      return;
-    }
     if (!hasUpg) {
       setMessage("⚙️ You must buy all upgrades of this era to proceed.");
       return;
@@ -751,12 +862,12 @@ if (nextEraBtn) {
 
 
 
-  function goNextEra() {
-    if (era >= 6) {
-  showEndGameModal();
-  return;
-}
 
+function goNextEra() {
+  if (era === 6) {
+    showEndGameModal();
+    return;
+  }
     era++;
     eraScore = 0;
     fireGuardianUsed = false;
@@ -778,9 +889,7 @@ if (nextEraBtn) {
   // --- Clicking the fire -------------------------------------------------
  fireButton.addEventListener("click", (e) => {
   totalClicks++;
-
   let flameGain = clickPower;
-
   if (alchemistBuys > 0 && totalClicks % 10 === 0) {
     const mult = Math.pow(2, alchemistBuys);
     flameGain *= mult;
@@ -790,7 +899,7 @@ if (nextEraBtn) {
   if (quantumClickerBuys > 0) flameGain += 100 * quantumClickerBuys;
 
   addFlame(flameGain);
-
+saveGame();
   let pointsGain = Math.max(1, Math.round(clickPower * pointMultiplier));
 
   if (ancientSparkBuys > 0 && Math.random() < 0.05 * ancientSparkBuys) {
@@ -799,8 +908,6 @@ if (nextEraBtn) {
   }
 
   flamePoints += pointsGain;
-  eraScore += pointsGain;
-
   const ws = purchasedCounts["Work Shifts"] || 0;
   if (ws > 0 && totalClicks % 20 === 0) {
     workShiftBonus++;
@@ -822,53 +929,280 @@ function showEndGameModal() {
 
   if (!modal || !overlay || !closeBtn) return;
 
+
   modal.classList.add("active");
   overlay.classList.add("active");
 
   setMessage("🏆 The Fire has reached the stars…", 2500);
 
-  closeBtn.addEventListener("click", () => {
+  closeBtn.replaceWith(closeBtn.cloneNode(true));
+  const newBtn = document.getElementById("closeEnd");
+  newBtn.addEventListener("click", () => {
     modal.classList.remove("active");
     overlay.classList.remove("active");
     location.reload();
   });
 }
+
+
 function showFireOutModal() {
   const modal = document.getElementById("fireOutModal");
   const overlay = document.getElementById("fireOutOverlay");
   const restartBtn = document.getElementById("restartFireBtn");
   if (!modal || !overlay || !restartBtn) return;
 
+  if (decayLoop) clearInterval(decayLoop);
+  Object.keys(passiveIntervals).forEach(k => clearInterval(passiveIntervals[k]));
+  fireButton.disabled = true;
+
   modal.classList.add("active");
   overlay.classList.add("active");
+  setMessage("💀 The Fire is extinguished... Civilization has fallen.", 2500);
 
-  setMessage("💀 The Fire is extinguished...", 2500);
+  restartBtn.replaceWith(restartBtn.cloneNode(true));
+  const newBtn = document.getElementById("restartFireBtn");
 
-  restartBtn.addEventListener("click", () => {
+  newBtn.addEventListener("click", () => {
+    localStorage.removeItem("fireGameState");
+
     modal.classList.remove("active");
     overlay.classList.remove("active");
+
+    setMessage("🔥 A new spark is born...");
     location.reload();
   });
 }
 
 
-  // --- Init --------------------------------------------------------------
-  function init() {
-    costDiscountPercent = 0;
-    if (eraText) eraText.textContent = eraNames[0];
-    if (document.body) document.body.style.background = `url(${backgrounds[0]}) center/cover fixed no-repeat`;
-    fireButton.classList.add(fireClasses[0]);
-    setEraBase();
-    startDecay();
-    renderShop();
-    updateFlameUI();
-    updatePointsUI();
-    updateProgressUI();
-    log("Game initialized.");
-  }
 
+  // --- Init --------------------------------------------------------------
+function init() {
+  loadGame(); 
+  costDiscountPercent = costDiscountPercent || 0;
+  if (eraText) eraText.textContent = eraNames[era - 1];
+  if (document.body) document.body.style.background = `url(${backgrounds[era - 1]}) center/cover fixed no-repeat`;
+  fireButton.classList.add(fireClasses[era - 1]);
+  setEraBase();
+  startDecay();
+  renderShop();
+  updateFlameUI();
+  updatePointsUI();
+  updateProgressUI();
+  setInterval(saveGame, 10000);
+  log("Game initialized.");
+}
+
+  
   init();
+
+  // === RESET PROGRESS SYSTEM ===
+// === RESET PROGRESS POPUP ===
+const resetBtn = document.getElementById("resetProgressBtn");
+if (resetBtn) {
+  resetBtn.addEventListener("click", () => {
+    // Create overlay + modal if not present
+    let overlay = document.getElementById("resetOverlay");
+    let modal = document.getElementById("resetModal");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "resetOverlay";
+      document.body.appendChild(overlay);
+    }
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "resetModal";
+      modal.innerHTML = `
+        <h5>⚠️ Reset Progress?</h5>
+        <p>All your flame points, upgrades, and eras will be permanently lost.</p>
+        <div style="margin-top:15px;">
+          <button id="confirmResetYes" class="btn btn-danger me-2">Yes, Reset</button>
+          <button id="confirmResetNo" class="btn btn-secondary">Cancel</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    // Make sure overlay is above everything
+    overlay.style.display = "block";
+    modal.style.display = "block";
+    overlay.style.zIndex = "10000";
+    modal.style.zIndex = "10001";
+
+    // Block interaction behind modal
+    overlay.onclick = () => {};
+
+    // Attach button handlers (rebind each time to ensure they work)
+    const yesBtn = document.getElementById("confirmResetYes");
+    const noBtn = document.getElementById("confirmResetNo");
+
+yesBtn.onclick = () => {
+  try {
+    // Clear all stored progress (including any game saves)
+    localStorage.removeItem("fireGameData");
+    localStorage.removeItem("costDiscountPercent");
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("theme");
+
+    // Store a marker so the game knows it's a clean start
+    localStorage.setItem("resetFlag", "true");
+
+    setMessage("🔥 Progress fully reset!");
+    overlay.style.display = "none";
+    modal.style.display = "none";
+
+    setTimeout(() => location.reload(true), 800);
+  } catch (err) {
+    console.error("Reset failed:", err);
+    alert("Something went wrong while resetting.");
+  }
+};
+
+
+
+    noBtn.onclick = () => {
+      overlay.style.display = "none";
+      modal.style.display = "none";
+      setMessage("❎ Reset canceled");
+    };
+  });
+}
+
+
+  // === RANDOM WORLD EVENTS SYSTEM ===
+const randomEvents = [
+  {
+  name: "🔥 The Wind of Ashes",
+  desc: "A sudden gust scatters embers — your flame cannot exceed 50% for 30 seconds.",
+  effect: () => {
+    const maxCap = 50;
+    let capActive = true;
+
+    const originalAddFlame = window.addFlame;
+    window.addFlame = function(amount, addPoints = false) {
+      if (capActive) {
+        fireInner.style.filter = "drop-shadow(0 0 40px #66ccff)";
+        flame = Math.min(maxCap, flame + amount);
+        if (addPoints) flamePoints += amount;
+        updateFlameUI();
+        updatePointsUI();
+        updateProgressUI();
+      } else {
+        originalAddFlame(amount, addPoints);
+      }
+    };
+
+    const clampLoop = setInterval(() => {
+      if (flame > maxCap) flame = maxCap;
+      updateFlameUI();
+    }, 200);
+
+    showEventAlert("🌬️ The Wind of Ashes", "The embers scatter in the wind! Flame cannot exceed 50%.");
+
+    setTimeout(() => {
+      capActive = false;
+      window.addFlame = originalAddFlame;
+      clearInterval(clampLoop);
+      showEventAlert("🌤️ Calm Returns", "The air stills, and your flame can grow freely again.");
+      fireInner.style.filter = "";
+    }, 30000);
+  }
+},
+  {
+    name: "💧 Sudden Rain",
+    desc: "Cold rain falls from the sky — flame decreases twice as fast for 20 seconds.",
+    effect: () => {
+      const oldRate = baseDecrease;
+      baseDecrease *= 2;
+      setMessage("💧 A cold rain dampens your fire!");
+      setTimeout(() => { baseDecrease = oldRate; setMessage("🌤️ The rain fades."); }, 20000);
+    }
+  },
+  {
+    name: "🌞 Solar Blessing",
+    desc: "A beam of sunlight energizes the tribe — flame restores 3% per second for 15 seconds.",
+    effect: () => {
+      const heal = setInterval(() => { addFlame(3); }, 1000);
+      setMessage("🌞 Solar blessing shines upon you!");
+      setTimeout(() => { clearInterval(heal); setMessage("☀️ The blessing fades."); }, 15000);
+    }
+  },
+  {
+    name: "🦅 Spirit of Ancestors",
+    desc: "The ancestors whisper strength — every click gives double flame for 25 seconds.",
+    effect: () => {
+      const oldPower = clickPower;
+      clickPower *= 2;
+      setMessage("🦅 Ancestral power flows through you!");
+      setTimeout(() => { clickPower = oldPower; setMessage("🕊️ The spirits depart."); }, 25000);
+    }
+  },
+  {
+    name: "🌑 Eclipse of Fire",
+    desc: "Darkness covers the sky — flame cannot regenerate above 30% for 40 seconds.",
+    effect: () => {
+      const interval = setInterval(() => {
+        if (flame > 30) flame = 30;
+        updateFlameUI();
+      }, 1000);
+      setMessage("🌑 The sun disappears... fire weakens.");
+      setTimeout(() => { clearInterval(interval); setMessage("☀️ Light returns to the world."); }, 40000);
+    }
+  },
+  {
+    name: "💨 Whispering Storm",
+    desc: "Powerful storm adds chaos — random gain or loss of 10% flame every 5 seconds for 30 seconds.",
+    effect: () => {
+      const storm = setInterval(() => {
+        const delta = (Math.random() > 0.5 ? 1 : -1) * 10;
+        flame = Math.min(100, Math.max(0, flame + delta));
+        updateFlameUI();
+        setMessage(delta > 0 ? "🌩️ Lightning sparks your fire!" : "💨 The storm dims the flames!");
+      }, 5000);
+      setTimeout(() => { clearInterval(storm); setMessage("🌈 The storm has passed."); }, 30000);
+    }
+  },
+  {
+    name: "🕯️ Festival of Flame",
+    desc: "Your tribe celebrates the fire — gain 50 flame points instantly!",
+    effect: () => {
+      flamePoints += 50;
+      eraScore += 50;
+      updatePointsUI();
+      setMessage("🎉 The Festival of Flame brings new energy!");
+    }
+  }
+];
+
+// Random event trigger system
+function startRandomEvents() {
+  const triggerEvent = () => {
+    const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+    showEventAlert(event.name, event.desc);
+    event.effect();
+  };
+
+  const randomDelay = () => 120000 + Math.random() * 60000; // every 2–3 min
+
+  const loop = () => {
+    setTimeout(() => {
+      triggerEvent();
+      loop();
+    }, randomDelay());
+  };
+
+  loop();
+}
+
+// start system when game initializes
+startRandomEvents();
+
 })();
+
+
+
+
+
+
 document.addEventListener('touchend', function (event) {
   const now = Date.now();
   if (window.lastTouch && (now - window.lastTouch) < 400) {
