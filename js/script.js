@@ -87,12 +87,24 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
     if (!ok) return;
 
     const users = getUsers();
-    const found = users.find(u => u.email === email && u.password === pass);
-    if (!found) { msg.textContent = "❌ Invalid email or password"; return; }
+    // Special admin login bypass
+if (email === "admin@gmail.com" && pass === "admin123") {
+  localStorage.setItem("currentUser", "admin");
+  localStorage.setItem("isAdmin", "true");
+  msg.textContent = "👑 Admin access granted!";
+  setTimeout(() => location.href = "profile.html", 700);
+  return;
+}
 
-    setCurrentUser(email);
-    msg.textContent = "✅ Logged in! Redirecting to Profile…";
-    setTimeout(() => location.href = "profile.html", 700);
+const found = users.find(u => u.email === email && u.password === pass);
+if (!found) { msg.textContent = "❌ Invalid email or password"; return; }
+
+setCurrentUser(email);
+localStorage.removeItem("isAdmin");
+msg.textContent = "✅ Logged in! Redirecting to Profile…";
+setTimeout(() => location.href = "profile.html", 700);
+
+
   });
 })();
 
@@ -108,20 +120,59 @@ function setCurrentUser(email) { localStorage.setItem("currentUser", email); }
     if (btn) btn.style.display = "none";
     return;
   }
+
   const u = getUsers().find(x => x.email === email);
-  if (!u) {
+  if (!u && email !== "admin") {
     box.innerHTML = `<p>Profile not found. <a href="login.html">Log in</a></p>`;
     if (btn) btn.style.display = "none";
     return;
   }
-  box.innerHTML = `
-    <div class="row g-2">
-      <div class="col-md-6"><strong>Name:</strong> ${u.name}</div>
-      <div class="col-md-6"><strong>Email:</strong> ${u.email}</div>
-      <div class="col-md-6"><strong>Phone:</strong> ${u.phone}</div>
-    </div>
-  `;
-  btn.addEventListener("click", () => { localStorage.removeItem("currentUser"); location.href = "login.html"; });
+
+  // --- normal user info
+  if (email !== "admin") {
+    box.innerHTML = `
+      <div class="row g-2">
+        <div class="col-md-6"><strong>Name:</strong> ${u.name}</div>
+        <div class="col-md-6"><strong>Email:</strong> ${u.email}</div>
+        <div class="col-md-6"><strong>Phone:</strong> ${u.phone}</div>
+      </div>
+    `;
+  } else {
+    box.innerHTML = `<h5>👑 Logged in as Admin</h5>`;
+  }
+
+  // --- logout button
+  if (btn) {
+    btn.addEventListener("click", () => {
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("isAdmin");
+      location.href = "login.html";
+    });
+  }
+
+  // --- ✅ Admin panel logic (runs on load, not logout)
+  const adminPanel = document.getElementById("adminPanel");
+  if (localStorage.getItem("isAdmin") === "true" && adminPanel) {
+    adminPanel.style.display = "block";
+
+    const applyBtn = document.getElementById("applyAdmin");
+    applyBtn.addEventListener("click", () => {
+      const newPower = parseFloat(document.getElementById("adminClickPower").value);
+      const newPoints = parseFloat(document.getElementById("adminFlamePoints").value);
+      const newEra = parseInt(document.getElementById("adminEra").value);
+      const disableDecay = document.getElementById("adminNoDecay").checked;
+
+      const saved = JSON.parse(localStorage.getItem("fireGameState") || "{}");
+
+      if (!isNaN(newPower)) saved.clickPower = newPower;
+      if (!isNaN(newPoints)) saved.flamePoints = newPoints;
+      if (!isNaN(newEra)) saved.era = newEra;
+      saved.quantumFlameActive = disableDecay;
+
+      localStorage.setItem("fireGameState", JSON.stringify(saved));
+      alert("✅ Game values updated! Reload the game page to apply.");
+    });
+  }
 })();
 
 /* CONTACT Validation */
@@ -246,7 +297,7 @@ localStorage.removeItem("fireGameData");
   let era = 1;                    // 1..6
   let pointMultiplier = 1;
 
-  let baseDecrease = 1000;           // per-second base decay (per era)
+  let baseDecrease = 1500;           // per-second base decay (per era)
   let flatReduction = 0;          // absolute reduction of decay
   let percentReduction = 0;       // percentage reduction (0..0.99)
   let quantumFlameActive = false; // stops decay
@@ -408,27 +459,8 @@ function updateProgressUI() {
   updateEraButtonState();
 
 }
-function colorizeProgressBar(p) {
-  if (!eraProgress) return;
-  let color = "linear-gradient(90deg,#ff9900,#ff6600)";
-  if (p > 75) color = "linear-gradient(90deg,#ffd700,#ffa500)";
-  if (p < 25) color = "linear-gradient(90deg,#804000,#ff4500)";
-  eraProgress.style.background = color;
-}
-
-
-
-  function currentDecayRate() {
-    if (quantumFlameActive) return 0;
-    let rate = baseDecrease * (1 - percentReduction);
-    if (flame < 50) rate *= (1 - 0.15 * smartControlBuys);
-    if (flame < 30) rate *= (1 - 0.05 * marbleHearthBuys);
-    rate = Math.max(0, rate - flatReduction);
-    return rate;
-  }
-
   function setEraBase() {
-      baseDecrease = 1000 * (era - 1); 
+      baseDecrease = 1800 * era; 
     log("Era", era, "baseDecrease:", baseDecrease);
   }
 
@@ -992,7 +1024,90 @@ function init() {
   log("Game initialized.");
 }
 
-  
+// === 🔥 ADMIN PANEL ON GAME PAGE (WITH TOGGLE) ===
+// === 🔥 ADMIN PANEL ON GAME PAGE (WITH TOGGLE & CLICK-SAFE HIDING) ===
+function setupAdminPanel() {
+  const adminPanel = document.getElementById("adminPanel");
+  const toggleBtn = document.getElementById("toggleAdminPanelBtn");
+  if (!adminPanel || !toggleBtn) return;
+
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  if (!isAdmin) {
+    adminPanel.style.display = "none";
+    toggleBtn.style.display = "none";
+    return;
+  }
+
+  // --- Show toggle button for admin ---
+  toggleBtn.style.display = "block";
+  adminPanel.style.display = "block";
+
+  let panelVisible = true;
+
+  toggleBtn.addEventListener("click", () => {
+    panelVisible = !panelVisible;
+    if (panelVisible) {
+      adminPanel.style.opacity = "1";
+      adminPanel.style.transform = "scale(1)";
+      adminPanel.style.pointerEvents = "auto"; // ✅ clickable again
+      toggleBtn.textContent = "❌"; // show "close" icon
+    } else {
+      adminPanel.style.opacity = "0";
+      adminPanel.style.transform = "scale(0.9)";
+      adminPanel.style.pointerEvents = "none"; // ✅ completely ignores clicks
+      toggleBtn.textContent = "⚙️";
+    }
+  });
+
+  // Prefill values
+  document.getElementById("adminClickPower").value = clickPower;
+  document.getElementById("adminFlamePoints").value = flamePoints;
+  document.getElementById("adminEra").value = era;
+  document.getElementById("adminNoDecay").checked = quantumFlameActive;
+
+  // Apply button
+  document.getElementById("applyAdmin").addEventListener("click", () => {
+    const newPower = parseFloat(document.getElementById("adminClickPower").value);
+    const newPoints = parseFloat(document.getElementById("adminFlamePoints").value);
+    const newEra = parseInt(document.getElementById("adminEra").value);
+    const disableDecay = document.getElementById("adminNoDecay").checked;
+
+    if (!isNaN(newPower)) clickPower = newPower;
+    if (!isNaN(newPoints)) flamePoints = newPoints;
+    if (!isNaN(newEra)) era = newEra;
+    quantumFlameActive = disableDecay;
+
+    updateFlameUI();
+    updatePointsUI();
+    updateProgressUI();
+    saveGame();
+
+    setMessage("✅ Admin values updated!");
+  });
+
+  // 🎲 Manual event trigger
+  const triggerBtn = document.getElementById("triggerEventBtn");
+  const eventSelect = document.getElementById("adminEventSelect");
+  triggerBtn.addEventListener("click", () => {
+    const idx = parseInt(eventSelect.value);
+    if (isNaN(idx)) {
+      setMessage("⚠️ Select an event first!");
+      return;
+    }
+    const ev = randomEvents[idx];
+    if (!ev) {
+      setMessage("❌ Event not found!");
+      return;
+    }
+    showEventAlert(ev.name, ev.desc);
+    ev.effect();
+  });
+}
+
+setupAdminPanel();
+
+
+
   init();
 
   // === RESET PROGRESS SYSTEM ===
@@ -1193,23 +1308,14 @@ function startRandomEvents() {
   loop();
 }
 
-// start system when game initializes
+
 startRandomEvents();
 
 })();
-
-
-
-
-
-
-document.addEventListener('touchend', function (event) {
-  const now = Date.now();
-  if (window.lastTouch && (now - window.lastTouch) < 400) {
-    event.preventDefault(); 
+// Prevent double-tap zoom but keep rapid taps working
+document.addEventListener('touchend', function (e) {
+  if (e.target.closest('#fireButton')) {
+    e.preventDefault(); // prevent zoom, allow tap to count
+    fireButton.click(); // manually trigger the click
   }
-  window.lastTouch = now;
-}, false);
-function handleFireClick(e) {
-  totalClicks++;
-}
+}, { passive: false });
