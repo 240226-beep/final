@@ -16,8 +16,19 @@ html, body {
   transition: background 0.4s ease, color 0.4s ease;
 }
 body {
-  transition: background 0.5s ease, color 0.4s ease;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
+
+.emoji {
+  font-family: "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+}
+
+.number {
+  font-weight: 700;
+  color: #ffcc66;
+  text-shadow: 0 0 4px rgba(255,180,0,0.6);
+}
+
 header, main, footer {
   display: block;
   width: 100%;
@@ -31,6 +42,9 @@ footer {
   flex-shrink: 0;
 }
 
+body {
+  font-family: "Noto Color Emoji", system-ui, sans-serif;
+}
 
 /* -------- DARK THEME -------- */
 html[data-theme="dark"] body {
@@ -920,6 +934,9 @@ body, button, .fire-button, .upgrade {
   background: linear-gradient(90deg,#ffb347,#ff8800);
   transform: scale(1.05);
 }
+
+
+
 /* === EVENT ALERT STYLES === */
 .event-alert {
   position: fixed;
@@ -1020,4 +1037,133 @@ body, button, .fire-button, .upgrade {
 @keyframes fadeIn {
   from { opacity: 0; transform: translate(-50%, -60%); }
   to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+
+.number, .upg-desc, .upg-bottom {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+
+.upgrade {
+  font-feature-settings: "tnum" 1;
+  letter-spacing: normal;
+}
+
+
+.upg-bottom {
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+
+html[data-theme="light"] .upg-bottom {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+
+.upg-bottom .emoji {
+  font-size: 1.1rem;
+  margin: 0 3px;
+  vertical-align: middle;
+}
+
+
+.upgrade .number {
+  color: inherit;
+  text-shadow: none;
+  font-weight: 600;
+}
+
+
+#flameValue, #eraProgressValue, #totalClicksValue {
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: inherit;
+}
+
+.clicks-total {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+
+}
+html[data-theme="light"] .clicks-total {
+  color: rgba(255, 255, 255, 0.88);
+}
+.flameppp{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+
+}
+html[data-theme="light"] .flameppp {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* Clean and consistent text for flame/progress lines */
+#flameText, #eraGoalText, #eventAlert {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+  
+}
+
+
+html[data-theme="light"] #flameText {
+  color: rgba(255, 255, 255, 0.88);
+}
+html[data-theme="light"]  #eraGoalText {
+  color: rgba(255, 255, 255, 0.88);
+}
+/* Prevent digits from spreading apart */
+#flameText span, 
+#eraGoalText span,
+.flameppp {
+  letter-spacing: 0;
+}
+
+/* Optional fade animation for smoother updates */
+#flameText, #eraGoalText, .flameppp, .clicks-total,.number, .upg-desc, .upg-bottom  {
+  transition: all 0.3s ease-in-out;
+  opacity: 1;
+}
+/* Floating click animation (visual fire pulse) */
+.fire-button.clicked {
+  transform: scale(1.15);
+  box-shadow: 0 0 30px rgba(255,140,0,0.8);
+  filter: brightness(1.2);
+  color: rgba(0, 0, 0, 0.85);
+  transition: all 0.25s ease-out;
+  letter-spacing: 0;
+}
+.fire-button.clicked::after {
+  content: "🔥";
+  position: absolute;
+  font-size: 1.5rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+#adminPanel {
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
